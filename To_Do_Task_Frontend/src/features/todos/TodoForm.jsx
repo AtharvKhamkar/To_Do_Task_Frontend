@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { useDispatch } from 'react-redux';
 import { createTodo, fetchTodos } from './todosSlice';
 
@@ -6,7 +8,7 @@ const TodoForm = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    due: '',
+    due: new Date(),
   });
   const dispatch = useDispatch();
 
@@ -18,16 +20,27 @@ const TodoForm = () => {
     });
   };
 
-  const handleSubmit = async(e) => {
+  const handleDateChange = (date) => {
+    setFormData({
+      ...formData,
+      due: date,
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    await dispatch(createTodo({ ...formData, status: 'Pending' })).unwrap();
+    await dispatch(createTodo({
+      title: formData.title,
+      description: formData.description,
+      due: formData.due.toISOString(), // Convert date to ISO string
+      status: 'Pending',
+    })).unwrap();
     dispatch(fetchTodos());
     setFormData({
       title: '',
       description: '',
-      due: '',
+      due: new Date(),
     });
-
   };
 
   return (
@@ -49,11 +62,11 @@ const TodoForm = () => {
         placeholder="Description"
         required
       />
-      <input
-        type="datetime-local"
-        name="due"
-        value={formData.due}
-        onChange={handleChange}
+      <DatePicker
+        selected={formData.due}
+        onChange={handleDateChange}
+        showTimeSelect
+        dateFormat="Pp"
         className="p-2 border rounded"
         required
       />

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { deleteTodo, fetchTodos, markTaskAsDone, updateTodo } from './todosSlice';
 
 const TodoList = () => {
@@ -9,7 +11,7 @@ const TodoList = () => {
   const [editForm, setEditForm] = useState({
     title: '',
     description: '',
-    due: '',
+    due: new Date(),
   });
 
   useEffect(() => {
@@ -31,7 +33,7 @@ const TodoList = () => {
     setEditForm({
       title: todo.title,
       description: todo.description,
-      due: todo.due
+      due: new Date(todo.due),
     });
   };
 
@@ -39,7 +41,14 @@ const TodoList = () => {
     const { name, value } = e.target;
     setEditForm({
       ...editForm,
-      [name]: value
+      [name]: value,
+    });
+  };
+
+  const handleDateChange = (date) => {
+    setEditForm({
+      ...editForm,
+      due: date,
     });
   };
 
@@ -91,11 +100,11 @@ const TodoList = () => {
             </div>
             <div className="flex items-center space-x-2">
               {editingId === todo._id ? (
-                <input
-                  type="datetime-local"
-                  name="due"
-                  value={editForm.due.split('.')[0]} // Remove the milliseconds for datetime-local input
-                  onChange={handleEditChange}
+                <DatePicker
+                  selected={editForm.due}
+                  onChange={handleDateChange}
+                  showTimeSelect
+                  dateFormat="Pp"
                   className="w-full p-2 border border-gray-300 rounded"
                 />
               ) : (
@@ -105,7 +114,7 @@ const TodoList = () => {
               )}
             </div>
             <div className="flex space-x-2">
-            <button onClick={() => handleToggleComplete(todo)} className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+              <button onClick={() => handleToggleComplete(todo)} className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
                 {todo.status}
               </button>
               {editingId === todo._id ? (
